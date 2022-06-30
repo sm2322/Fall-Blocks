@@ -4,27 +4,34 @@ pygame.init()
 disw = 1200
 dish = 720
 screen= pygame.display.set_mode([disw,dish])
+pygame.display.set_caption("Fall Blocks!")
 clock = pygame.time.Clock()
 mouse_down = False
 red = (255,0,0)
 green = (0,255,0)
 blue = (0,0,255)
 yellow = (255,255,0)
+purple = (255,0,255)
 keep_true = True
 key_down = False
 playerx = disw/2
 font = pygame.font.Font('freesansbold.ttf', 32)
+# Object Lists
 boxes = []
 coins = []
+bonuses = []
+#
 score = 0
-dif = 3.0
-class Faller:
+dif = 3.0 #Null Value
+isTest = True
+#Classes
+class Faller: # Falling Blocks
     def __init__(self,color,speed,y):
         self.color = color
         self.speed = speed
         self.y = y
         fall = pygame.Rect((randint(0,disw - 50),self.y),(50,50))
-        if len(boxes) < 1 + score:
+        if len(boxes) < 1 + score: # Difficulty Incesment 
             box = fall.copy()
             boxes.append(box)
         
@@ -37,6 +44,15 @@ class Coin:
         if len(coins) < 3:
             coin = coinR.copy()
             coins.append(coin)
+class Bonus:
+    def __init__(self,color,speed,y):
+        self.color = color
+        self.speed = speed
+        self.y = y
+        BonusR = pygame.Rect((randint(0,disw - 50),self.y),(50,50))
+        if len(bonuses) < 1:
+            bonus = BonusR.copy()
+            bonuses.append(bonus)
 while keep_true:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -66,7 +82,7 @@ while keep_true:
           box.y += dif
       else:
           boxes.remove(box)
-      if pygame.Rect.colliderect(playerRect,box):
+      if pygame.Rect.colliderect(playerRect,box) and isTest == False:
         print("                    You Lose!")
         print("                    Score = " + str(score * 100))
         f = open("scores.txt", "r")
@@ -95,10 +111,21 @@ while keep_true:
         if pygame.Rect.colliderect(playerRect,coin):
             score += 1
             coins.remove(coin)
+    for bonus in bonuses:
+        pygame.draw.rect(screen,purple,bonus)
+        if bonus.y < dish-150:
+            bonus.y += dif
+        else:
+          bonuses.remove(bonus)
+        if pygame.Rect.colliderect(playerRect,bonus):
+            score += 10
+            bonuses.remove(bonus)
         
     f = Faller(red,5,0)
     c = Coin(yellow,5,0)
-    dif = 3.0 + score / 10
+    if randint(1,1000) == 2:    
+        p = Bonus(purple,5,0)
+    dif = 5.0 + score / 10
     pygame.display.update()
     clock.tick(90)
 name = input("Name:")
